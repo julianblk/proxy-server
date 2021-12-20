@@ -19,7 +19,7 @@ public class ProxyController {
     }
 
     @GetMapping(
-        produces = MediaType.APPLICATION_JSON_VALUE
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE}
     )
     public ResponseEntity<String> callUrl(@RequestParam("proxy-url") String proxyUrl) {
         return ResponseEntity.ok(proxyService.callUrl(proxyUrl));
