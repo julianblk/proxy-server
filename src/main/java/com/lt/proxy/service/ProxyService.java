@@ -1,6 +1,5 @@
 package com.lt.proxy.service;
 
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ public class ProxyService {
         this.restTemplate = restTemplate;
     }
 
-    public Map<String, String> getResponseHeaders(String proxyUrl) {
+    public String callUrl(String proxyUrl) {
 
         if (!proxyUrl.startsWith(HTTP_PROTOCOL_PREFIX)) {
             throw new ProxyException(
@@ -64,6 +63,6 @@ public class ProxyService {
             proxyUrl
         );
 
-        return headers.toSingleValueMap();
+        return response.getBody();
     }
 }

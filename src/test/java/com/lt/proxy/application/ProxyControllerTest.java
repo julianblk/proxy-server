@@ -1,6 +1,5 @@
 package com.lt.proxy.application;
 
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,28 +34,19 @@ class ProxyControllerTest {
         final String proxyUrl = "http://www.google.com";
 
         //AND: the proxy call is correctly executed through the service
-        Map<String, String> expectedHeaders =
-            Map.of(
-                "some-header-name-1", "some-header-value-1",
-                "some-header-name-2", "some-header-value-2"
-            );
+        String expectedResponseBody = "some response body";
         when(
-            proxyServiceMock.getResponseHeaders(proxyUrl)
-        ).thenReturn(expectedHeaders);
+            proxyServiceMock.callUrl(proxyUrl)
+        ).thenReturn(expectedResponseBody);
 
-        //WHEN: requesting the response headers from a call to the proxy url
+        //WHEN: requesting a call to the proxy url
         String url = String.format("%s?proxy-url=%s", BASE_URL, proxyUrl);
         ResultActions results = mvc.perform(get(url));
 
-        //THEN: the headers are in the response body
+        //THEN: the response body is propagated
         results.andExpect(status().isOk())
                .andExpect(
-                   content().json(
-                       "{" +
-                           "'some-header-name-1': 'some-header-value-1'," +
-                           "'some-header-name-2': 'some-header-value-2'" +
-                       "}"
-                   )
+                   content().string(expectedResponseBody)
                );
     }
 
@@ -71,10 +61,10 @@ class ProxyControllerTest {
         Exception cause = new Exception("Some cause");
         ProxyException exception = new ProxyException(errorMessage, cause);
         when(
-            proxyServiceMock.getResponseHeaders(proxyUrl)
+            proxyServiceMock.callUrl(proxyUrl)
         ).thenThrow(exception);
 
-        //WHEN: requesting the response headers from a call to the proxy url
+        //WHEN: requesting a call to the proxy url
         String url = String.format("%s?proxy-url=%s", BASE_URL, proxyUrl);
         ResultActions results = mvc.perform(get(url));
 
@@ -100,10 +90,10 @@ class ProxyControllerTest {
         Exception cause = new Exception("Some cause");
         ResourceNotFoundException exception = new ResourceNotFoundException(errorMessage, cause);
         when(
-            proxyServiceMock.getResponseHeaders(proxyUrl)
+            proxyServiceMock.callUrl(proxyUrl)
         ).thenThrow(exception);
 
-        //WHEN: requesting the response headers from a call to the proxy url
+        //WHEN: requesting a call to the proxy url
         String url = String.format("%s?proxy-url=%s", BASE_URL, proxyUrl);
         ResultActions results = mvc.perform(get(url));
 
