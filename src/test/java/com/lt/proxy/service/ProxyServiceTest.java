@@ -1,8 +1,5 @@
 package com.lt.proxy.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,28 +39,18 @@ class ProxyServiceTest {
         HttpHeaders expectedResponseHeaders = new HttpHeaders();
         expectedResponseHeaders.setContentType(MediaType.TEXT_HTML);
         expectedResponseHeaders.set("some-header-name", "some-header-value");
+        String expectedResponseBody = "some response body";
         ResponseEntity<String> responseEntity =
-            new ResponseEntity<>("some ignored body", expectedResponseHeaders, HttpStatus.OK);
+            new ResponseEntity<>(expectedResponseBody, expectedResponseHeaders, HttpStatus.OK);
         when(
             restTemplateMock.exchange(proxyUrl, HttpMethod.GET, null, String.class)
         ).thenReturn(responseEntity);
 
+        //WHEN: requesting a call to the proxy url
+        String responseBody = proxyService.callUrl(proxyUrl);
 
-        //WHEN: requesting the response headers for a proxy url call
-        Map<String, String> responseHeaders = proxyService.getResponseHeaders(proxyUrl);
-
-        //THEN: the expected headers from the proxy call are returned
-        assertEquals(
-            List.of(
-                "Content-Type :: text/html",
-                "some-header-name :: some-header-value"
-            ),
-            responseHeaders.entrySet()
-                           .stream()
-                           .map(e -> e.getKey() + " :: " + e.getValue())
-                           .sorted()
-                           .collect(Collectors.toList())
-        );
+        //THEN: the response body from the proxy call are returned
+        assertEquals(expectedResponseBody, responseBody);
     }
 
     @Test
@@ -78,11 +65,11 @@ class ProxyServiceTest {
             restTemplateMock.exchange(proxyUrl, HttpMethod.GET, null, String.class)
         ).thenThrow(internalException);
 
-        //WHEN: requesting the response headers for a proxy url call
+        //WHEN: requesting a call to the proxy url
         ResourceNotFoundException exception =
             assertThrows(
                 ResourceNotFoundException.class,
-                () -> proxyService.getResponseHeaders(proxyUrl)
+                () -> proxyService.callUrl(proxyUrl)
             );
 
         //THEN: the expected exception is thrown with details about the error
@@ -105,17 +92,17 @@ class ProxyServiceTest {
         //GIVEN: a valid http-protocol url to proxy
         final String proxyUrl = "http://www.google.com/some-path";
 
-        //AND: the proxy call results is neither OK nor NOT_FOUND
+        //AND: the proxy call response is neither OK nor NOT_FOUND
         HttpClientErrorException internalException = new HttpClientErrorException(HttpStatus.GATEWAY_TIMEOUT);
         when(
             restTemplateMock.exchange(proxyUrl, HttpMethod.GET, null, String.class)
         ).thenThrow(internalException);
 
-        //WHEN: requesting the response headers for a proxy url call
+        //WHEN: requesting a call to the proxy url
         ProxyException exception =
             assertThrows(
                 ProxyException.class,
-                () -> proxyService.getResponseHeaders(proxyUrl)
+                () -> proxyService.callUrl(proxyUrl)
             );
 
         //THEN: the expected exception is thrown with details about the error
@@ -144,11 +131,11 @@ class ProxyServiceTest {
 
         //GIVEN: a non http-protocol url to proxy
 
-        //WHEN: requesting the response headers for calling the proxy url
+        //WHEN: requesting a call to the proxy url
         ProxyException exception =
             assertThrows(
                 ProxyException.class,
-                () -> proxyService.getResponseHeaders(proxyUrl)
+                () -> proxyService.callUrl(proxyUrl)
             );
 
         //THEN: the expected exception is thrown with details about the error

@@ -1,6 +1,5 @@
 package com.lt.proxy.application;
 
-import java.util.Map;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,7 @@ public class ProxyController {
     @GetMapping(
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Map<String, String>> getResponseHeaders(@RequestParam("proxy-url") String proxyUrl) {
-        return ResponseEntity.ok(proxyService.getResponseHeaders(proxyUrl));
+    public ResponseEntity<String> callUrl(@RequestParam("proxy-url") String proxyUrl) {
+        return ResponseEntity.ok(proxyService.callUrl(proxyUrl));
     }
 }

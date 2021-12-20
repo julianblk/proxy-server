@@ -1,5 +1,6 @@
 # proxy-server
-Proxy Server REST app that leverages _Spring-Web_ and _RestTemplate_ to make GET calls to a given URL and respond with the response headers
+Proxy Server REST app that leverages _Spring-Web_ and _RestTemplate_ to make GET calls to a given URL
+and propagate the response body while logging the response headers
 
 
 ## Prerequisites:
@@ -21,10 +22,7 @@ This will deploy the app at port 8080 with a single endpoint available: `/proxy`
 #### Valid URL:
 `http://localhost:8080/proxy?proxy-url=http://www.google.com`
 
-Should respond `OK (200)` with a body like this one:
-
-`{"Date":"Mon, 20 Dec 2021 17:54:38 GMT","Expires":"-1","Cache-Control":"private, max-age=0","Content-Type":"text/html; charset=ISO-8859-1","P3P":"CP=\"This is not a P3P policy! See g.co/p3phelp for more info.\"","Server":"gws","X-XSS-Protection":"0","X-Frame-Options":"SAMEORIGIN","Set-Cookie":"1P_JAR=2021-12-20-17; expires=Wed, 19-Jan-2022 17:54:38 GMT; path=/; domain=.google.com; Secure","Accept-Ranges":"none","Vary":"Accept-Encoding","Transfer-Encoding":"chunked"}`
-
+Should respond `OK (200)` with a body that contains the HTML of the original call.
 
 #### Non-existing URL:
 `http://localhost:8080/proxy?proxy-url=http://www.google.com/some-path`
